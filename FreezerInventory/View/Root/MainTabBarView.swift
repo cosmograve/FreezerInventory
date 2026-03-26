@@ -24,14 +24,16 @@ struct MainTabBarView: View {
     }
 
     private var rootContent: some View {
-        ZStack(alignment: .bottom) {
-            legacyContent
+        GeometryReader { proxy in
+            ZStack(alignment: .bottom) {
+                legacyContent
 
-            if isActiveSearchPresented {
-                searchOverlay
-                    .padding(.bottom, searchBottomInset)
-                    .zIndex(10)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                if isActiveSearchPresented {
+                    searchOverlay
+                        .padding(.bottom, searchBottomInset(safeAreaBottom: proxy.safeAreaInsets.bottom))
+                        .zIndex(10)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
         }
         .background(AppColors.appBackground.ignoresSafeArea())
@@ -82,9 +84,9 @@ struct MainTabBarView: View {
         )
     }
 
-    private var searchBottomInset: CGFloat {
+    private func searchBottomInset(safeAreaBottom: CGFloat) -> CGFloat {
         if keyboardHeight > 0 {
-            return keyboardHeight + 2
+            return max(0, keyboardHeight - safeAreaBottom + 2)
         }
         return tabBarOverlayHeight + 2
     }
